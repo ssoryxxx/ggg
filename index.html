@@ -1,0 +1,1363 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Психотерапия и рабочие листы</title>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Yeseva+One&display=swap');
+
+    :root {
+        --ink: #192b3a;
+        --ink-soft: #2e4154;
+        --muted: #5a7085;
+        --accent: #2f7f8b;
+        --accent-dark: #246670;
+        --accent-2: #f29f3d;
+        --accent-2-dark: #d9811f;
+        --surface: #ffffff;
+        --surface-2: #f3f7fb;
+        --surface-3: #e9f1f7;
+        --line: #d7e3ee;
+        --danger: #c2463f;
+        --danger-dark: #9f2f2a;
+        --success: #2f8b57;
+        --shadow: 0 20px 40px -24px rgba(22, 45, 62, 0.45);
+        --shadow-soft: 0 8px 18px rgba(22, 45, 62, 0.12);
+        --radius-sm: 14px;
+        --radius: 22px;
+        --radius-lg: 28px;
+        --radius-pill: 999px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'IBM Plex Sans', sans-serif;
+        background:
+            radial-gradient(1200px 400px at 8% -10%, rgba(47,127,139,0.20), transparent 60%),
+            radial-gradient(800px 300px at 90% 0%, rgba(242,159,61,0.22), transparent 60%),
+            linear-gradient(160deg, #f5f8fc 0%, #e7eef7 45%, #f7f2ea 100%);
+        color: var(--ink);
+        padding: calc(20px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
+        min-height: 100vh;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+            radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1px);
+        background-size: 22px 22px;
+        opacity: 0.18;
+        pointer-events: none;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.4rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+    }
+
+    h1 {
+        font-family: 'Yeseva One', 'IBM Plex Sans', serif;
+        font-size: 2rem;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        color: var(--ink);
+    }
+
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--ink);
+        border-left: 4px solid var(--accent);
+        padding-left: 0.9rem;
+    }
+
+    h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--ink);
+    }
+
+    .card {
+        background: rgba(255,255,255,0.92);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        padding: 1.8rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255,255,255,0.7);
+        backdrop-filter: blur(6px);
+        animation: rise 0.5s ease both;
+    }
+
+    .btn,
+    button {
+        background: var(--accent);
+        border: none;
+        color: white;
+        padding: 0.55rem 1rem;
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        font-size: 0.9rem;
+        box-shadow: var(--shadow-soft);
+        font-family: inherit;
+    }
+
+    .btn:hover,
+    button:hover {
+        background: var(--accent-dark);
+        transform: translateY(-1px);
+    }
+
+    .btn-primary { background: var(--accent); }
+    .btn-primary:hover { background: var(--accent-dark); }
+
+    .btn-warn { background: var(--accent-2); }
+    .btn-warn:hover { background: var(--accent-2-dark); }
+
+    .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: var(--danger-dark); }
+
+    .btn-ghost,
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--ink);
+        box-shadow: none;
+    }
+    .btn-ghost:hover,
+    .btn-outline:hover {
+        background: var(--surface-2);
+    }
+
+    .btn-xs {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.78rem;
+        box-shadow: none;
+    }
+
+    .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--ink-soft);
+    }
+
+    input, textarea, select {
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        background: var(--surface);
+        color: var(--ink);
+        box-shadow: inset 0 1px 2px rgba(20, 35, 50, 0.06);
+    }
+
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: rgba(47,127,139,0.6);
+        box-shadow: 0 0 0 3px rgba(47,127,139,0.15);
+    }
+
+    textarea {
+        min-height: 90px;
+        resize: vertical;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.8rem;
+        margin-top: 1rem;
+    }
+
+    .toggle-switch {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .toggle-switch input {
+        width: 44px;
+        height: 24px;
+        appearance: none;
+        background: #cbd5e1;
+        border-radius: 30px;
+        position: relative;
+        cursor: pointer;
+        box-shadow: inset 0 1px 2px rgba(20, 35, 50, 0.15);
+    }
+
+    .toggle-switch input:checked {
+        background: var(--accent);
+    }
+
+    .toggle-switch input::before {
+        content: '';
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: 0.2s;
+    }
+
+    .toggle-switch input:checked::before {
+        left: 22px;
+    }
+
+    .toggle-switch .toggle-text {
+        font-size: 0.8rem;
+        color: var(--muted);
+    }
+
+    .form-item {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.2rem;
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow-soft);
+        margin-bottom: 1.4rem;
+    }
+
+    .form-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .form-title-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+    }
+
+    .form-desc {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 0.35rem;
+    }
+
+    .pill {
+        background: #e7f1f3;
+        color: var(--accent-dark);
+        padding: 0.2rem 0.6rem;
+        border-radius: var(--radius-pill);
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .pill.small { font-size: 0.7rem; }
+
+    .table-card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        overflow: hidden;
+    }
+
+    .table-responsive {
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 1rem;
+        position: relative;
+    }
+
+    .table-scroll {
+        max-height: 60vh;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--surface);
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 12px 12px;
+        text-align: left;
+        border-top: 1px solid var(--line);
+        vertical-align: top;
+        font-size: 0.9rem;
+        word-break: break-word;
+    }
+
+    .data-table thead th {
+        background: var(--surface-2);
+        border-top: none;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        box-shadow: 0 1px 0 var(--line);
+    }
+
+    .data-table tr:hover { background: #f9fcff; }
+
+    .data-table.compact td { padding: 10px 10px; }
+
+    .action-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .form-title { font-weight: 700; color: var(--ink); }
+
+    .form-table {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--surface);
+    }
+
+    .form-table .table-responsive {
+        margin-top: 0;
+    }
+
+    .form-table .data-table th,
+    .form-table .data-table td {
+        border-top: 1px dashed var(--line);
+    }
+
+    .form-table .data-table tr:first-child td {
+        border-top: none;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 12px;
+        padding: 12px 14px;
+        border-bottom: 1px dashed var(--line);
+        align-items: center;
+    }
+
+    .form-row:last-child { border-bottom: none; }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--ink-soft);
+        font-size: 0.9rem;
+    }
+
+    .form-input input,
+    .form-input textarea,
+    .form-input select {
+        width: 100%;
+    }
+
+    .response-card {
+        background: #fff7e8;
+        border: 1px solid #f1d6a8;
+        border-radius: var(--radius);
+        padding: 1rem;
+        margin-top: 0.9rem;
+    }
+
+    .response-meta {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #9a6a1c;
+        margin-bottom: 0.6rem;
+    }
+
+    .section-title {
+        margin-top: 1.2rem;
+        font-weight: 600;
+        color: var(--ink-soft);
+    }
+
+    .date-group {
+        margin-top: 1rem;
+    }
+
+    .date-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-screen {
+        max-width: 460px;
+        margin: 12vh auto;
+    }
+
+    footer {
+        text-align: center;
+        margin-top: 2rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+    }
+
+    .modal {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(10,20,30,0.35);
+        backdrop-filter: blur(6px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: white;
+        max-width: 650px;
+        width: 92%;
+        border-radius: var(--radius-lg);
+        padding: 1.6rem;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+
+    .field-row {
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+        margin-bottom: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .field-row input { flex: 2; }
+    .field-row select { flex: 1; }
+    .field-row button { flex-shrink: 0; }
+
+    .error-message {
+        background: #ffe6e5;
+        color: #b91c1c;
+        padding: 1rem;
+        border-radius: var(--radius);
+        margin-bottom: 1rem;
+    }
+
+    .success-message {
+        background: #e0f2e9;
+        color: #166534;
+        padding: 1rem;
+        border-radius: var(--radius);
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 700px) {
+        body {
+            padding: calc(16px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom));
+        }
+        .card { padding: 1.2rem; border-radius: var(--radius); }
+        h1 { font-size: 1.55rem; }
+        input, textarea, select { font-size: 1rem; }
+        .data-table th, .data-table td { padding: 14px 12px; font-size: 0.95rem; }
+        .table-scroll { max-height: 55vh; }
+        .header-actions {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 0.6rem;
+        }
+        .header-actions .btn-ghost,
+        .header-actions .btn-outline {
+            grid-column: 1 / -1;
+        }
+        .form-actions { justify-content: flex-start; }
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 6px;
+        }
+        .toggle-switch .toggle-text { display: none; }
+    }
+
+    @media (hover: none) {
+        .btn:hover,
+        button:hover {
+            transform: none;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; transition: none !important; }
+    }
+
+    @keyframes rise {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+</head>
+<body>
+<div id="app" class="container"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    // ----------  КОНФИГУРАЦИЯ SUPABASE ----------
+    const SUPABASE_URL = "https://jnfhgnikpgpyeudlrdpe.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpuZmhnbmlrcGdweWV1ZGxyZHBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NDY3NjEsImV4cCI6MjA5MDUyMjc2MX0.7FsplRzp0dgYagixZnAHvH_Hl2OFZFUi5qvlU04roIg";
+
+    // ----------  ЛОКАЛЬНЫЕ КЛЮЧИ STORAGE ----------
+    const STORAGE_FORMS = "therapy_forms";
+    const STORAGE_AVAILABILITY = "therapy_availability";
+    const STORAGE_RESPONSES = "therapy_responses";
+
+    let currentRole = null;
+    let formsCache = [];
+    let supabaseClient = null;
+    let cloudEnabled = false;   // флаг, удалось ли подключиться к Supabase
+
+    // ----------  ВСЕ ФОРМЫ ПО УМОЛЧАНИЮ (16 штук) ----------
+    const DEFAULT_FORMS = [
+        { id: "anger_diary", name: "1 сессия — Дневник эпизодов гнева", description: "Записывайте триггеры, уверенность в правоте, последствия", fields: [
+            { name: "date", label: "Дата и время", type: "text" },
+            { name: "trigger", label: "Что произошло? (триггер)", type: "textarea" },
+            { name: "thought", label: "Что я подумал(а) в тот момент?", type: "textarea" },
+            { name: "certainty", label: "Уверенность в правоте (0-100%)", type: "number" },
+            { name: "action", label: "Что сделал(а)?", type: "textarea" },
+            { name: "change_time", label: "Через сколько изменилось мнение?", type: "text" },
+            { name: "later_insight", label: "Что понял(а) позже?", type: "textarea" }
+        ], is_table: true },
+        { id: "emotion_chain", name: "2 сессия — Цепочка эмоций", description: "Распознаём первичные эмоции под гневом", fields: [
+            { name: "trigger", label: "Триггер", type: "textarea" },
+            { name: "primary_emotion", label: "Первичная эмоция (страх, стыд, боль)", type: "text" },
+            { name: "secondary_anger", label: "Вторичная эмоция (гнев, ярость)", type: "text" },
+            { name: "action", label: "Что я сделал(а)", type: "textarea" },
+            { name: "after_feeling", label: "Что чувствовал(а) потом", type: "textarea" }
+        ], is_table: true },
+        { id: "pause_practice", name: "3 сессия — Практика паузы (STOP)", description: "STOP и правило 5 минут", fields: [
+            { name: "impulse", label: "Импульс (что хотел сделать)", type: "textarea" },
+            { name: "used_stop", label: "Применил(а) STOP? (да/нет)", type: "text" },
+            { name: "waited_min", label: "Подождал(а) минут", type: "text" },
+            { name: "intensity_before", label: "Интенсивность до (0-100)", type: "number" },
+            { name: "intensity_after", label: "Интенсивность после (0-100)", type: "number" },
+            { name: "final_action", label: "Что в итоге сделал(а)?", type: "textarea" }
+        ], is_table: true },
+        { id: "check_facts", name: "4 сессия — Проверка фактов", description: "Отделяем мысли от фактов", fields: [
+            { name: "angry_thought", label: "Моя мысль в гневе", type: "textarea" },
+            { name: "evidence_for", label: "Факты, подтверждающие", type: "textarea" },
+            { name: "evidence_against", label: "Факты, опровергающие", type: "textarea" },
+            { name: "alternatives", label: "Альтернативные объяснения", type: "textarea" },
+            { name: "certainty_now", label: "Уверенность сейчас (0-100)", type: "number" }
+        ], is_table: true },
+        { id: "anger_chain", name: "5 сессия — Цепь гнева (подробно)", description: "Разбор эпизода по звеньям", fields: [
+            { name: "vulnerabilities", label: "Уязвимости (сон, еда, стресс за 24ч)", type: "textarea" },
+            { name: "trigger", label: "Триггер", type: "textarea" },
+            { name: "thought", label: "Автоматическая мысль", type: "textarea" },
+            { name: "body", label: "Телесные ощущения", type: "textarea" },
+            { name: "impulse", label: "Импульс к действию", type: "textarea" },
+            { name: "action", label: "Действие", type: "textarea" },
+            { name: "short_term", label: "Краткосрочные последствия", type: "textarea" },
+            { name: "long_term", label: "Долгосрочные последствия", type: "textarea" },
+            { name: "break_point", label: "Где можно разорвать цепь?", type: "textarea" }
+        ], is_table: true },
+        { id: "devil_advocate", name: "6 сессия — Адвокат дьявола", description: "Поиск аргументов в пользу другой стороны", fields: [
+            { name: "situation", label: "Ситуация", type: "textarea" },
+            { name: "my_position", label: "Моя позиция в гневе", type: "textarea" },
+            { name: "arg1", label: "Аргумент 1", type: "text" },
+            { name: "arg2", label: "Аргумент 2", type: "text" },
+            { name: "arg3", label: "Аргумент 3", type: "text" }
+        ], is_table: true },
+        { id: "self_compassion", name: "7 сессия — Сострадательный ответ на стыд", description: "Превращаем стыд в самосострадание", fields: [
+            { name: "angry_action", label: "Что я сделал(а) в гневе", type: "textarea" },
+            { name: "shame_talk", label: "Что говорит стыд", type: "textarea" },
+            { name: "friend_response", label: "Что сказал бы любящий друг", type: "textarea" }
+        ], is_table: true },
+        { id: "exp_analysis", name: "8 сессия — Анализ эксперимента (запись спора)", description: "Проверка ощущения правоты", fields: [
+            { name: "situation", label: "Ситуация", type: "textarea" },
+            { name: "arguments_angry", label: "Мои аргументы в гневе (запись)", type: "textarea" },
+            { name: "rating_calm", label: "Оценка логичности после остывания (0-10)", type: "number" },
+            { name: "observation", label: "Что я заметил(а)", type: "textarea" }
+        ], is_table: true },
+        { id: "third_container", name: "9 сессия — Третий контейнер", description: "Интеграция хороших и плохих качеств", fields: [
+            { name: "person", label: "Человек", type: "text" },
+            { name: "good_qualities", label: "Хорошие качества (три)", type: "textarea" },
+            { name: "bad_qualities", label: "Плохие качества (три)", type: "textarea" },
+            { name: "integration", label: "Интегративное предложение", type: "textarea" }
+        ], is_table: true },
+        { id: "defeat_reaction", name: "10 сессия — Реакция на поражение", description: "Отделяем личность от результата", fields: [
+            { name: "situation", label: "Ситуация", type: "textarea" },
+            { name: "auto_thought", label: "Автоматическая мысль", type: "textarea" },
+            { name: "alternative", label: "Альтернативная мысль (описание действия)", type: "textarea" },
+            { name: "continuum", label: "Где на континууме (0-100%)", type: "number" }
+        ], is_table: true },
+        { id: "emptiness_track", name: "11 сессия — Отслеживание пустоты", description: "Что наполняет, что усиливает пустоту", fields: [
+            { name: "time", label: "Время", type: "text" },
+            { name: "level_before", label: "Уровень пустоты до (0-10)", type: "number" },
+            { name: "activity", label: "Что делал(а)", type: "textarea" },
+            { name: "level_after", label: "Уровень после (0-10)", type: "number" }
+        ], is_table: true },
+        { id: "fear_abandonment", name: "12 сессия — Страх отвержения", description: "Мои стратегии при страхе покинутости", fields: [
+            { name: "situation", label: "Ситуация", type: "textarea" },
+            { name: "feeling", label: "Что я чувствую", type: "textarea" },
+            { name: "strategy", label: "Что делаю (провоцирую, ухожу, цепляюсь)", type: "textarea" },
+            { name: "real_need", label: "Что хочу на самом деле", type: "textarea" }
+        ], is_table: true },
+        { id: "post_fight_plan", name: "13 сессия — План после ссоры", description: "Восстановление отношений", fields: [
+            { name: "cool_down", label: "Время остыть (мин)", type: "text" },
+            { name: "self_statement", label: "Что сказал себе", type: "textarea" },
+            { name: "apology_text", label: "Извинение (по формуле)", type: "textarea" },
+            { name: "next_skill", label: "Какой навык попробую в следующий раз", type: "text" }
+        ], is_table: true },
+        { id: "red_flags_crisis", name: "14 сессия — Красные флаги и кризисный план", description: "Ранние признаки и действия", fields: [
+            { name: "yellow_flags", label: "Желтый уровень: признаки", type: "textarea" },
+            { name: "orange_flags", label: "Оранжевый: признаки", type: "textarea" },
+            { name: "crisis_step1", label: "Шаг 1 в кризисе", type: "text" },
+            { name: "crisis_step2", label: "Шаг 2", type: "text" },
+            { name: "trust_person", label: "Доверенное лицо (имя, телефон)", type: "text" },
+            { name: "emergency_contact", label: "Экстренная помощь", type: "text" }
+        ], is_table: true },
+        { id: "new_identity", name: "15 сессия — Моя новая идентичность", description: "Кто я, когда не зол", fields: [
+            { name: "self_description", label: "Я – человек, который... (опишите себя вне гнева)", type: "textarea" }
+        ], is_table: false }
+    ];
+
+    // ----------  ИНИЦИАЛИЗАЦИЯ ЛОКАЛЬНОГО ХРАНИЛИЩА ----------
+    function initLocalStorage() {
+        if (!localStorage.getItem(STORAGE_FORMS)) {
+            localStorage.setItem(STORAGE_FORMS, JSON.stringify(DEFAULT_FORMS));
+        }
+        if (!localStorage.getItem(STORAGE_AVAILABILITY)) {
+            const forms = JSON.parse(localStorage.getItem(STORAGE_FORMS));
+            const avail = {};
+            forms.forEach(f => { avail[f.id] = false; });
+            localStorage.setItem(STORAGE_AVAILABILITY, JSON.stringify(avail));
+        }
+        if (!localStorage.getItem(STORAGE_RESPONSES)) {
+            localStorage.setItem(STORAGE_RESPONSES, JSON.stringify([]));
+        }
+    }
+
+    function getLocalForms() {
+        return JSON.parse(localStorage.getItem(STORAGE_FORMS));
+    }
+
+    function setLocalForms(forms) {
+        localStorage.setItem(STORAGE_FORMS, JSON.stringify(forms));
+        formsCache = forms;
+    }
+
+    function getLocalAvailability() {
+        return JSON.parse(localStorage.getItem(STORAGE_AVAILABILITY));
+    }
+
+    function setLocalAvailability(formId, isAvailable) {
+        const avail = getLocalAvailability();
+        avail[formId] = isAvailable;
+        localStorage.setItem(STORAGE_AVAILABILITY, JSON.stringify(avail));
+    }
+
+    function getLocalResponses() {
+        return JSON.parse(localStorage.getItem(STORAGE_RESPONSES));
+    }
+
+    function addLocalResponse(formId, dataObj) {
+        const responses = getLocalResponses();
+        responses.push({
+            form_id: formId,
+            created_at: new Date().toISOString(),
+            data: dataObj
+        });
+        localStorage.setItem(STORAGE_RESPONSES, JSON.stringify(responses));
+    }
+
+    function clearLocalResponses() {
+        localStorage.setItem(STORAGE_RESPONSES, JSON.stringify([]));
+    }
+
+    function clearLocalResponsesForForm(formId) {
+        const responses = getLocalResponses();
+        const newResponses = responses.filter(r => r.form_id !== formId);
+        localStorage.setItem(STORAGE_RESPONSES, JSON.stringify(newResponses));
+    }
+
+    function createLocalForm(name, description, fields, isTable) {
+        const forms = getLocalForms();
+        const newId = "form_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6);
+        const newForm = {
+            id: newId,
+            name: name,
+            description: description,
+            fields: fields,
+            is_table: isTable
+        };
+        forms.push(newForm);
+        setLocalForms(forms);
+        const avail = getLocalAvailability();
+        avail[newId] = false;
+        localStorage.setItem(STORAGE_AVAILABILITY, JSON.stringify(avail));
+        return newForm;
+    }
+
+    function deleteLocalForm(formId) {
+        let forms = getLocalForms();
+        forms = forms.filter(f => f.id !== formId);
+        setLocalForms(forms);
+        const avail = getLocalAvailability();
+        delete avail[formId];
+        localStorage.setItem(STORAGE_AVAILABILITY, JSON.stringify(avail));
+        clearLocalResponsesForForm(formId);
+        return true;
+    }
+    // ----------  ФУНКЦИИ СИНХРОНИЗАЦИИ С SUPABASE ----------
+    async function syncFormsFromCloud() {
+        if (!cloudEnabled) return false;
+        try {
+            const { data, error } = await supabaseClient.from('forms').select('*');
+            if (error) throw error;
+            if (data && data.length > 0) {
+                setLocalForms(data);
+                // также синхронизируем доступность
+                const { data: availData } = await supabaseClient.from('availability').select('*');
+                if (availData) {
+                    const newAvail = {};
+                    availData.forEach(row => newAvail[row.form_id] = row.is_available);
+                    localStorage.setItem(STORAGE_AVAILABILITY, JSON.stringify(newAvail));
+                }
+                return true;
+            }
+        } catch (e) {
+            console.warn("Ошибка синхронизации форм из облака:", e);
+        }
+        return false;
+    }
+
+    async function syncResponsesFromCloud() {
+        if (!cloudEnabled) return;
+        try {
+            const { data, error } = await supabaseClient.from('responses').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            if (data) {
+                localStorage.setItem(STORAGE_RESPONSES, JSON.stringify(data));
+            }
+        } catch (e) {
+            console.warn("Ошибка синхронизации ответов из облака:", e);
+        }
+    }
+
+    async function pushFormToCloud(form) {
+        if (!cloudEnabled) return;
+        try {
+            const { error } = await supabaseClient.from('forms').upsert(form);
+            if (error) throw error;
+        } catch (e) {
+            console.warn("Не удалось отправить форму в облако:", e);
+        }
+    }
+
+    async function pushAvailabilityToCloud(formId, isAvailable) {
+        if (!cloudEnabled) return;
+        try {
+            await supabaseClient.from('availability').upsert({ form_id: formId, is_available: isAvailable });
+        } catch (e) {
+            console.warn("Не удалось отправить доступность в облако:", e);
+        }
+    }
+
+    async function pushResponseToCloud(formId, dataObj) {
+        if (!cloudEnabled) return;
+        try {
+            await supabaseClient.from('responses').insert({ form_id: formId, data: dataObj });
+        } catch (e) {
+            console.warn("Не удалось отправить ответ в облако:", e);
+        }
+    }
+
+    async function deleteFormFromCloud(formId) {
+        if (!cloudEnabled) return;
+        try {
+            await supabaseClient.from('forms').delete().eq('id', formId);
+            await supabaseClient.from('responses').delete().eq('form_id', formId);
+            await supabaseClient.from('availability').delete().eq('form_id', formId);
+        } catch (e) {
+            console.warn("Не удалось удалить форму в облаке:", e);
+        }
+    }
+
+    async function clearAllResponsesCloud() {
+        if (!cloudEnabled) return;
+        try {
+            await supabaseClient.from('responses').delete().neq('id', 0);
+        } catch (e) {
+            console.warn("Не удалось очистить ответы в облаке:", e);
+        }
+    }
+
+    async function clearResponsesForFormCloud(formId) {
+        if (!cloudEnabled) return;
+        try {
+            await supabaseClient.from('responses').delete().eq('form_id', formId);
+        } catch (e) {
+            console.warn("Не удалось очистить ответы формы в облаке:", e);
+        }
+    }
+
+    // ----------  ИНИЦИАЛИЗАЦИЯ SUPABASE И ПОДПИСКИ ----------
+    async function initSupabase() {
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            await supabaseClient.from('forms').select('count', { head: true });
+            cloudEnabled = true;
+            console.log("Подключение к Supabase установлено");
+            // Подписываемся на изменения
+            const formsSub = supabaseClient.channel('forms-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'forms' }, async () => {
+                    await syncFormsFromCloud();
+                    if (currentRole === 'therapist') renderTherapist();
+                    else if (currentRole === 'patient') renderPatient();
+                })
+                .subscribe();
+            const availSub = supabaseClient.channel('avail-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'availability' }, async () => {
+                    await syncFormsFromCloud();
+                    if (currentRole === 'therapist') renderTherapist();
+                    else if (currentRole === 'patient') renderPatient();
+                })
+                .subscribe();
+            const respSub = supabaseClient.channel('resp-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'responses' }, async () => {
+                    await syncResponsesFromCloud();
+                    if (currentRole === 'therapist') renderTherapist();
+                    else if (currentRole === 'patient') renderPatient();
+                })
+                .subscribe();
+            return true;
+        } catch (e) {
+            console.warn("Supabase недоступен, работаем локально:", e);
+            cloudEnabled = false;
+            return false;
+        }
+    }
+    // ----------  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ UI ----------
+    function showError(msg) {
+        const app = document.getElementById('app');
+        const div = document.createElement('div');
+        div.className = 'error-message';
+        div.innerText = '⚠️ ' + msg;
+        app.prepend(div);
+        setTimeout(() => div.remove(), 5000);
+        console.error(msg);
+    }
+
+    function showSuccess(msg) {
+        const app = document.getElementById('app');
+        const div = document.createElement('div');
+        div.className = 'success-message';
+        div.innerText = '✅ ' + msg;
+        app.prepend(div);
+        setTimeout(() => div.remove(), 3000);
+    }
+        function renderResponsesTable(responses, form) {
+        if (!responses.length) return '<p>Нет ответов.</p>';
+        const fields = form.fields || [];
+        const groups = {};
+        const order = [];
+        responses.forEach(resp => {
+            const d = new Date(resp.created_at);
+            const dateKey = d.toLocaleDateString('ru-RU');
+            if (!groups[dateKey]) {
+                groups[dateKey] = [];
+                order.push(dateKey);
+            }
+            groups[dateKey].push(resp);
+        });
+
+        let html = '';
+        if (form.is_table) {
+            order.forEach(dateKey => {
+                html += `<div class="date-group"><div class="date-title">${dateKey}</div>`;
+                html += '<div class="table-responsive table-scroll"><table class="data-table"><thead><tr><th>Время</th>';
+                fields.forEach(f => html += `<th>${f.label}</th>`);
+                html += '</tr></thead><tbody>';
+                groups[dateKey].forEach(resp => {
+                    const time = new Date(resp.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                    html += `<tr><td>${time}</td>`;
+                    fields.forEach(f => {
+                        let val = resp.data[f.name] || '';
+                        html += `<td>${val}</td>`;
+                    });
+                    html += `</tr>`;
+                });
+                html += '</tbody></table></div></div>';
+            });
+            return html;
+        }
+
+        order.forEach(dateKey => {
+            html += `<div class="date-group"><div class="date-title">${dateKey}</div>`;
+            html += '<div class="table-responsive table-scroll"><table class="data-table"><thead><tr><th>Время</th><th>Поле</th><th>Значение</th></tr></thead><tbody>';
+            groups[dateKey].forEach(resp => {
+                const time = new Date(resp.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                let rowAdded = false;
+                fields.forEach(f => {
+                    let val = resp.data[f.name];
+                    if (val) {
+                        rowAdded = true;
+                        html += `<tr><td>${time}</td><td>${f.label}</td><td>${val}</td></tr>`;
+                    }
+                });
+                if (!rowAdded) {
+                    html += `<tr><td>${time}</td><td>—</td><td>Нет данных</td></tr>`;
+                }
+            });
+            html += '</tbody></table></div></div>';
+        });
+        return html;
+    }
+
+    // ----------  РЕНДЕР ТЕРАПЕВТА ----------
+    async function renderTherapist() {
+        const forms = getLocalForms();
+        formsCache = forms;
+        const availability = getLocalAvailability();
+        const app = document.getElementById('app');
+        app.innerHTML = `
+            <div class="header">
+                <div>
+                    <h1>🧑‍⚕️ Психотерапия и заполнение рабочих листов</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="clearAllBtn" class="btn btn-warn">🧹 Очистить всё</button>
+                    <button id="createFormBtn" class="btn btn-primary">➕ Создать форму</button>
+                    <button id="logoutBtn" class="btn btn-ghost">Выйти</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2>📋 Управление формами</h2>
+                <div id="formsList"></div>
+            </div>
+            <div class="card">
+                <h2>📥 Все ответы пациента</h2>
+                <div id="responsesViewer">Загрузка...</div>
+            </div>
+            <footer>${cloudEnabled ? '☁️ Синхронизация с облаком включена' : '📀 Локальный режим (без облака)'}</footer>
+        `;
+
+        const formsContainer = document.getElementById('formsList');
+        formsContainer.innerHTML = `
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Форма</th>
+                                <th>Тип</th>
+                                <th>Доступ</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        const formsTbody = formsContainer.querySelector('tbody');
+        for (let form of forms) {
+            const isAvail = availability[form.id] || false;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td data-label="Форма">
+                    <div class="form-title">${form.name}</div>
+                    <div class="form-desc">${form.description || '—'}</div>
+                </td>
+                <td data-label="Тип"><span class="pill">${form.is_table ? '📊 Таблица' : '📄 Анкета'}</span></td>
+                <td data-label="Доступ">
+                    <div class="toggle-switch">
+                        <input type="checkbox" data-id="${form.id}" ${isAvail ? 'checked' : ''} aria-label="Доступность формы">
+                        <span class="toggle-text">Доступна</span>
+                    </div>
+                </td>
+                <td data-label="Действия">
+                    <div class="action-group">
+                        <button class="btn btn-warn btn-xs clear-form" data-id="${form.id}">Очистить</button>
+                        <button class="btn btn-danger btn-xs delete-form" data-id="${form.id}">Удалить</button>
+                    </div>
+                </td>
+            `;
+            formsTbody.appendChild(tr);
+            const chk = tr.querySelector('input[type="checkbox"]');
+            chk.addEventListener('change', async (e) => {
+                setLocalAvailability(form.id, e.target.checked);
+                await pushAvailabilityToCloud(form.id, e.target.checked);
+            });
+            const clearBtn = tr.querySelector('.clear-form');
+            clearBtn.addEventListener('click', async () => {
+                clearLocalResponsesForForm(form.id);
+                await clearResponsesForFormCloud(form.id);
+                updateResponsesView();
+                showSuccess(`Ответы по форме "${form.name}" удалены`);
+            });
+            const delBtn = tr.querySelector('.delete-form');
+            delBtn.addEventListener('click', async () => {
+                if (confirm(`Удалить форму "${form.name}" и все её ответы?`)) {
+                    deleteLocalForm(form.id);
+                    await deleteFormFromCloud(form.id);
+                    renderTherapist();
+                }
+            });
+        }
+
+        async function updateResponsesView() {
+            const responses = getLocalResponses();
+            const container = document.getElementById('responsesViewer');
+            if (!container) return;
+            if (responses.length === 0) {
+                container.innerHTML = '<p>Нет ответов.</p>';
+                return;
+            }
+            let html = '';
+            for (let form of forms) {
+                const formResponses = responses.filter(r => r.form_id === form.id);
+                if (formResponses.length === 0) continue;
+                html += `<div style="margin-bottom:1.4rem;"><h3>📄 ${form.name}</h3>`;
+                html += renderResponsesTable(formResponses, form);
+                html += `</div>`;
+            }
+            if (html === '') html = '<p>Нет ответов.</p>';
+            container.innerHTML = html;
+        }
+        await updateResponsesView();
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            currentRole = null;
+            sessionStorage.removeItem('therapyRole');
+            renderLogin();
+        });
+        document.getElementById('clearAllBtn').addEventListener('click', async () => {
+            if (confirm("Удалить ВСЕ ответы пациента?")) {
+                clearLocalResponses();
+                await clearAllResponsesCloud();
+                updateResponsesView();
+                showSuccess("Все ответы удалены");
+            }
+        });
+        document.getElementById('createFormBtn').addEventListener('click', () => showCreateFormModal());
+    }
+
+    
+    // ----------  МОДАЛЬНОЕ ОКНО СОЗДАНИЯ ФОРМЫ ----------
+    function showCreateFormModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3>➕ Создать новую форму</h3>
+                <div class="form-grid">
+                    <div class="field-group">
+                        <label>Название (с номером сессии)</label>
+                        <input id="formName" placeholder="16 сессия — Название">
+                    </div>
+                    <div class="field-group">
+                        <label>Описание</label>
+                        <textarea id="formDesc" rows="2"></textarea>
+                    </div>
+                    <div class="field-group">
+                        <label>Тип формы</label>
+                        <select id="formType">
+                            <option value="false">📄 Анкета (отдельные записи)</option>
+                            <option value="true">📊 Таблица (дневник)</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label>Поля</label>
+                        <div id="fieldsList"></div>
+                        <button type="button" id="addFieldBtn" class="btn btn-outline" style="margin-top:0.5rem;">+ Добавить поле</button>
+                    </div>
+                    <div class="form-actions">
+                        <button id="saveFormBtn" class="btn btn-primary">Создать</button>
+                        <button id="cancelModalBtn" class="btn btn-ghost">Отмена</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        let fields = [];
+
+        function renderFields() {
+            const container = document.getElementById('fieldsList');
+            container.innerHTML = '';
+            fields.forEach((f, idx) => {
+                const div = document.createElement('div');
+                div.className = 'field-row';
+                div.innerHTML = `
+                    <input type="text" placeholder="Имя поля (латиницей)" value="${f.name}">
+                    <input type="text" placeholder="Метка (отображаемый текст)" value="${f.label}">
+                    <select>
+                        <option value="text" ${f.type === 'text' ? 'selected' : ''}>Текст</option>
+                        <option value="textarea" ${f.type === 'textarea' ? 'selected' : ''}>Многострочный</option>
+                        <option value="number" ${f.type === 'number' ? 'selected' : ''}>Число</option>
+                    </select>
+                    <button class="btn btn-danger btn-xs remove-field" data-idx="${idx}">Удалить</button>
+                `;
+                container.appendChild(div);
+                const nameInp = div.querySelector('input:first-child');
+                const labelInp = div.querySelector('input:nth-child(2)');
+                const typeSel = div.querySelector('select');
+                nameInp.addEventListener('input', (e) => fields[idx].name = e.target.value);
+                labelInp.addEventListener('input', (e) => fields[idx].label = e.target.value);
+                typeSel.addEventListener('change', (e) => fields[idx].type = e.target.value);
+                div.querySelector('.remove-field').addEventListener('click', () => {
+                    fields.splice(idx, 1);
+                    renderFields();
+                });
+            });
+        }
+
+        document.getElementById('addFieldBtn').addEventListener('click', () => {
+            fields.push({ name: 'field' + (fields.length+1), label: 'Новое поле', type: 'text' });
+            renderFields();
+        });
+
+        document.getElementById('saveFormBtn').addEventListener('click', async () => {
+            const name = document.getElementById('formName').value.trim();
+            const desc = document.getElementById('formDesc').value;
+            const isTable = document.getElementById('formType').value === 'true';
+            if (!name) { alert('Введите название'); return; }
+            if (fields.length === 0) { alert('Добавьте хотя бы одно поле'); return; }
+            const namesSet = new Set();
+            for (let f of fields) {
+                if (!f.name || !f.label) { alert('Заполните имя и метку поля'); return; }
+                if (namesSet.has(f.name)) { alert(`Поле с именем "${f.name}" повторяется`); return; }
+                namesSet.add(f.name);
+            }
+            const newForm = createLocalForm(name, desc, fields, isTable);
+            await pushFormToCloud(newForm);
+            modal.remove();
+            renderTherapist();
+            showSuccess(`Форма "${name}" создана`);
+        });
+        document.getElementById('cancelModalBtn').addEventListener('click', () => modal.remove());
+        renderFields();
+    }
+// ----------  РЕНДЕР ПАЦИЕНТА ----------
+    async function renderPatient() {
+        const forms = getLocalForms();
+        const availability = getLocalAvailability();
+        const availableForms = forms.filter(f => availability[f.id] === true);
+        const app = document.getElementById('app');
+        app.innerHTML = `
+            <div class="header">
+                <div>
+                    <h1>📝 Психотерапия и заполнение рабочих листов</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="logoutBtnPatient" class="btn btn-ghost">Выйти</button>
+                </div>
+            </div>
+            <div class="card">
+                <div id="patientFormsContainer"></div>
+            </div>
+            <footer>${cloudEnabled ? '☁️ Данные синхронизируются с облаком' : '📀 Локальный режим (без облака)'}</footer>
+        `;
+        const container = document.getElementById('patientFormsContainer');
+        if (availableForms.length === 0) {
+            container.innerHTML = '<p>⏳ Нет доступных форм. Терапевт откроет их позже.</p>';
+            document.getElementById('logoutBtnPatient').addEventListener('click', () => {
+                currentRole = null;
+                sessionStorage.removeItem('therapyRole');
+                renderLogin();
+            });
+            return;
+        }
+
+        for (let form of availableForms) {
+            const formCard = document.createElement('div');
+            formCard.className = 'form-item';
+            formCard.innerHTML = `
+                <div class="form-head">
+                    <div>
+                        <div class="form-title-row">
+                            <h3>${form.name}</h3>
+                            <span class="pill small">${form.is_table ? '📊 Дневник' : '📄 Анкета'}</span>
+                        </div>
+                        <p class="form-desc">${form.description || ''}</p>
+                    </div>
+                </div>
+                <div id="form-${form.id}" class="form-table">\n                    <div class="table-responsive">\n                        <table class="data-table">\n                            <tbody></tbody>\n                        </table>\n                    </div>\n                </div>
+                <div class="form-actions"><button class="btn btn-primary save-btn" data-id="${form.id}">💾 Сохранить ответ</button></div>
+                <div class="section-title">📅 Мои предыдущие записи</div>
+                <div id="history-${form.id}"></div>
+            `;
+            container.appendChild(formCard);
+            const fieldsContainer = formCard.querySelector(`#form-${form.id} tbody`);
+            const fields = form.fields || [];
+                        fields.forEach(field => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="form-label">${field.label}</td>
+                    <td class="form-input">
+                        <${field.type === 'textarea' ? 'textarea' : 'input'}
+                            data-field="${field.name}"
+                            ${field.type !== 'textarea' ? 'type="' + field.type + '"' : ''}
+                            placeholder="${field.placeholder || ''}"></${field.type === 'textarea' ? 'textarea' : 'input'}>
+                    </td>
+                `;
+                fieldsContainer.appendChild(row);
+            });
+
+            function loadHistory() {
+                const responses = getLocalResponses();
+                const formResponses = responses.filter(r => r.form_id === form.id);
+                const historyDiv = formCard.querySelector(`#history-${form.id}`);
+                if (formResponses.length === 0) {
+                    historyDiv.innerHTML = '<p>Пока нет записей.</p>';
+                    return;
+                }
+                historyDiv.innerHTML = renderResponsesTable(formResponses, form);
+            }
+            loadHistory();
+
+            const saveBtn = formCard.querySelector('.save-btn');
+            saveBtn.addEventListener('click', async () => {
+                const formData = {};
+                fields.forEach(field => {
+                    const input = fieldsContainer.querySelector(`[data-field="${field.name}"]`);
+                    if (input) formData[field.name] = input.value;
+                });
+                if (Object.values(formData).every(v => !v || v.trim() === '')) {
+                    alert('Заполните хотя бы одно поле.');
+                    return;
+                }
+                addLocalResponse(form.id, formData);
+                await pushResponseToCloud(form.id, formData);
+                fields.forEach(field => {
+                    const input = fieldsContainer.querySelector(`[data-field="${field.name}"]`);
+                    if (input) input.value = '';
+                });
+                showSuccess('Ответ сохранён!');
+                loadHistory();
+            });
+        }
+
+        document.getElementById('logoutBtnPatient').addEventListener('click', () => {
+            currentRole = null;
+            sessionStorage.removeItem('therapyRole');
+            renderLogin();
+        });
+    }
+
+    // ----------  ВХОД ----------
+    function renderLogin() {
+        const app = document.getElementById('app');
+        app.innerHTML = `
+            <div class="login-screen card">
+                <h1 style="text-align:center;">🧠 Психотерапия и заполнение рабочих листов</h1>
+                <p style="text-align:center; margin:1rem 0 2rem;">Введите код доступа</p>
+                <div class="form-grid">
+                    <div class="field-group">
+                        <label>Код</label>
+                        <input type="password" id="accessCode" placeholder="••••" autocomplete="off">
+                    </div>
+                    <div class="form-actions">
+                        <button id="loginBtn">Войти</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const code = document.getElementById('accessCode').value.trim();
+            if (code === '1113') {
+                currentRole = 'therapist';
+                sessionStorage.setItem('therapyRole', 'therapist');
+                await syncFormsFromCloud();
+                await syncResponsesFromCloud();
+                renderTherapist();
+            } else if (code === '1') {
+                currentRole = 'patient';
+                sessionStorage.setItem('therapyRole', 'patient');
+                await syncFormsFromCloud();
+                await syncResponsesFromCloud();
+                renderPatient();
+            } else {
+                alert('Неверный код');
+            }
+        });
+    }
+
+    // ----------  ЗАПУСК ----------
+    (async () => {
+        initLocalStorage();
+        await initSupabase();   // пробуем подключиться к Supabase, но даже если нет – работаем локально
+        const savedRole = sessionStorage.getItem('therapyRole');
+        if (savedRole === 'therapist') {
+            currentRole = 'therapist';
+            await syncFormsFromCloud();
+            await syncResponsesFromCloud();
+            renderTherapist();
+        } else if (savedRole === 'patient') {
+            currentRole = 'patient';
+            await syncFormsFromCloud();
+            await syncResponsesFromCloud();
+            renderPatient();
+        } else {
+            renderLogin();
+        }
+    })();
+
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
