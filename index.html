@@ -265,9 +265,9 @@
     let currentRole = null;
     let formsCache = [];
     let supabase = null;
-    let cloudEnabled = false;   // флаг, удалось ли подключиться к Supabase
+    let cloudEnabled = false;
 
-    // ----------  ВСЕ ФОРМЫ ПО УМОЛЧАНИЮ (16 штук) ----------
+    // ----------  ВСЕ ФОРМЫ ПО УМОЛЧАНИЮ ----------
     const DEFAULT_FORMS = [
         { id: "anger_diary", name: "1 сессия — Дневник эпизодов гнева", description: "Записывайте триггеры, уверенность в правоте, последствия", fields: [
             { name: "date", label: "Дата и время", type: "text" },
@@ -460,137 +460,99 @@
         return true;
     }
 
-    // ----------  ФУНКЦИИ СИНХРОНИЗАЦИИ С SUPABASE ----------
-    async function syncFormsFromCloud() {
-        if (!cloudEnabled) return false;
-        try {
-            const { data, error } = await supabase.from('forms').select('*');
-            if (error) throw error;
-            if (data && data.length > 0) {
-                setLocalForms(data);
-                // также синхронизируем доступность
-                const { data: availData } = await supabase.from('availability').select('*');
-                if (availData) {
-                    const newAvail = {};
-                    availData.forEach(row => newAvail[row.form_id] = row.is_available);
-                    localStorage.setItem(STORAGE_AVAILABILITY, JSON.stringify(newAvail));
-                }
-                return true;
-            }
-        } catch (e) {
-            console.warn("Ошибка синхронизации форм из облака:", e);
-        }
-        return false;
-    }
-
-    async function syncResponsesFromCloud() {
-        if (!cloudEnabled) return;
-        try {
-            const { data, error } = await supabase.from('responses').select('*').order('created_at', { ascending: false });
-            if (error) throw error;
-            if (data) {
-                localStorage.setItem(STORAGE_RESPONSES, JSON.stringify(data));
-            }
-        } catch (e) {
-            console.warn("Ошибка синхронизации ответов из облака:", e);
-        }
-    }
-
+    // ----------  ОПЕРАЦИИ С SUPABASE (безопасные, не блокируют интерфейс) ----------
     async function pushFormToCloud(form) {
-        if (!cloudEnabled) return;
+        if (!cloudEnabled || !supabase) return;
         try {
-            const { error } = await supabase.from('forms').upsert(form);
-            if (error) throw error;
-        } catch (e) {
-            console.warn("Не удалось отправить форму в облако:", e);
-        }
+            await supabase.from('forms').upsert(form);
+        } catch (e) { console.warn("Cloud push failed", e); }
     }
 
     async function pushAvailabilityToCloud(formId, isAvailable) {
-        if (!cloudEnabled) return;
+        if (!cloudEnabled || !supabase) return;
         try {
             await supabase.from('availability').upsert({ form_id: formId, is_available: isAvailable });
-        } catch (e) {
-            console.warn("Не удалось отправить доступность в облако:", e);
-        }
+        } catch (e) { console.warn("Cloud push avail failed", e); }
     }
 
     async function pushResponseToCloud(formId, dataObj) {
-        if (!cloudEnabled) return;
+        if (!cloudEnabled || !supabase) return;
         try {
             await supabase.from('responses').insert({ form_id: formId, data: dataObj });
-        } catch (e) {
-            console.warn("Не удалось отправить ответ в облако:", e);
-        }
+        } catch (e) { console.warn("Cloud push response failed", e); }
     }
 
     async function deleteFormFromCloud(formId) {
-        if (!cloudEnabled) return;
+        if (!cloudEnabled || !supabase) return;
         try {
             await supabase.from('forms').delete().eq('id', formId);
             await supabase.from('responses').delete().eq('form_id', formId);
             await supabase.from('availability').delete().eq('form_id', formId);
-        } catch (e) {
-            console.warn("Не удалось удалить форму в облаке:", e);
-        }
+        } catch (e) { console.warn("Cloud delete failed", e); }
     }
 
     async function clearAllResponsesCloud() {
-        if (!cloudEnabled) return;
+        if (!cloudEnabled || !supabase) return;
         try {
             await supabase.from('responses').delete().neq('id', 0);
-        } catch (e) {
-            console.warn("Не удалось очистить ответы в облаке:", e);
-        }
+        } catch (e) { console.warn("Cloud clear all failed", e); }
     }
 
     async function clearResponsesForFormCloud(formId) {
-        if (!cloudEnabled) return;
+        if (!cloudEnabled || !supabase) return;
         try {
             await supabase.from('responses').delete().eq('form_id', formId);
-        } catch (e) {
-            console.warn("Не удалось очистить ответы формы в облаке:", e);
-        }
+        } catch (e) { console.warn("Cloud clear form failed", e); }
     }
 
-    // ----------  ИНИЦИАЛИЗАЦИЯ SUPABASE И ПОДПИСКИ ----------
+    async function syncFromCloud() {
+        if (!cloudEnabled || !supabase) return;
+        try {
+            const { data: formsData } = await supabase.from('forms').select('*');
+            if (formsData && formsData.length) setLocalForms(formsData);
+            const { data: availData } = await supabase.from('availability').select('*');
+            if (availData) {
+                const newAvail = {};
+                availData.forEach(row => newAvail[row.form_id] = row.is_available);
+                localStorage.setItem(STORAGE_AVAILABILITY, JSON.stringify(newAvail));
+            }
+            const { data: respData } = await supabase.from('responses').select('*').order('created_at', { ascending: false });
+            if (respData) localStorage.setItem(STORAGE_RESPONSES, JSON.stringify(respData));
+        } catch (e) { console.warn("Cloud sync failed", e); }
+    }
+
+    // ----------  ИНИЦИАЛИЗАЦИЯ SUPABASE (без блокировки рендеринга) ----------
     async function initSupabase() {
         try {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            await supabase.from('forms').select('count', { head: true });
+            // Проверяем доступность (не ждём долго)
+            await Promise.race([
+                supabase.from('forms').select('count', { head: true }),
+                new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000))
+            ]);
             cloudEnabled = true;
-            console.log("Подключение к Supabase установлено");
-            // Подписываемся на изменения
-            const formsSub = supabase.channel('forms-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'forms' }, async () => {
-                    await syncFormsFromCloud();
-                    if (currentRole === 'therapist') renderTherapist();
-                    else if (currentRole === 'patient') renderPatient();
-                })
-                .subscribe();
-            const availSub = supabase.channel('avail-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'availability' }, async () => {
-                    await syncFormsFromCloud();
-                    if (currentRole === 'therapist') renderTherapist();
-                    else if (currentRole === 'patient') renderPatient();
-                })
-                .subscribe();
-            const respSub = supabase.channel('resp-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'responses' }, async () => {
-                    await syncResponsesFromCloud();
-                    if (currentRole === 'therapist') renderTherapist();
-                    else if (currentRole === 'patient') renderPatient();
-                })
-                .subscribe();
-            return true;
+            console.log("Supabase cloud enabled");
+            // Подписки на изменения (оборачиваем, чтобы ошибки не ломали интерфейс)
+            try {
+                supabase.channel('forms-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'forms' }, () => syncFromCloud().catch(()=>{}))
+                    .subscribe((status, err) => { if (err) console.warn("Sub error", err); });
+                supabase.channel('avail-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'availability' }, () => syncFromCloud().catch(()=>{}))
+                    .subscribe();
+                supabase.channel('resp-changes')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'responses' }, () => syncFromCloud().catch(()=>{}))
+                    .subscribe();
+            } catch (e) { console.warn("Subscription setup failed", e); }
+            // синхронизируем один раз в фоне
+            syncFromCloud().catch(()=>{});
         } catch (e) {
-            console.warn("Supabase недоступен, работаем локально:", e);
+            console.warn("Supabase not available, working locally");
             cloudEnabled = false;
-            return false;
         }
     }
 
-    // ----------  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ UI ----------
+    // ----------  ВСПОМОГАТЕЛЬНЫЕ UI ----------
     function showError(msg) {
         const app = document.getElementById('app');
         const div = document.createElement('div');
@@ -614,18 +576,18 @@
         if (!responses.length) return '<p>Нет ответов.</p>';
         const fields = form.fields || [];
         if (form.is_table) {
-            let html = '<div class="table-responsive"> <table> <thead> <tr> <th>📅 Дата</th>';
+            let html = '<div class="table-responsive"><table><thead><tr><th>📅 Дата</th>';
             fields.forEach(f => html += `<th>${f.label}</th>`);
-            html += '</tr> </thead> <tbody>';
+            html += '</tr></thead><tbody>';
             responses.forEach(resp => {
-                html += `<tr> <td>${new Date(resp.created_at).toLocaleString()}</td>`;
+                html += `<tr><td>${new Date(resp.created_at).toLocaleString()}</td>`;
                 fields.forEach(f => {
                     let val = resp.data[f.name] || '';
                     html += `<td>${val}</td>`;
                 });
-                html += `</tr>`;
+                html += '</tr>';
             });
-            html += '</tbody> </table> </div>';
+            html += '</tbody></table></div>';
             return html;
         } else {
             let html = '';
@@ -904,18 +866,18 @@
                     return;
                 }
                 if (form.is_table) {
-                    let html = '<div class="table-responsive"> <table> <thead> <tr> <th>📅 Дата</th>';
+                    let html = '<div class="table-responsive"><table><thead><tr><th>📅 Дата</th>';
                     form.fields.forEach(f => html += `<th>${f.label}</th>`);
-                    html += '</tr> </thead> <tbody>';
+                    html += '</tr></thead><tbody>';
                     formResponses.forEach(resp => {
-                        html += `<tr> <td>${new Date(resp.created_at).toLocaleString()}</td>`;
+                        html += `<tr><td>${new Date(resp.created_at).toLocaleString()}</td>`;
                         form.fields.forEach(f => {
                             let val = resp.data[f.name] || '';
                             html += `<td>${val}</td>`;
                         });
-                        html += `</tr>`;
+                        html += '</tr>';
                     });
-                    html += '</tbody> </table> </div>';
+                    html += '</tbody></table></div>';
                     historyDiv.innerHTML = html;
                 } else {
                     let html = '';
@@ -984,14 +946,12 @@
             if (code === '1113') {
                 currentRole = 'therapist';
                 sessionStorage.setItem('therapyRole', 'therapist');
-                await syncFormsFromCloud();
-                await syncResponsesFromCloud();
+                await syncFromCloud();
                 renderTherapist();
             } else if (code === '1') {
                 currentRole = 'patient';
                 sessionStorage.setItem('therapyRole', 'patient');
-                await syncFormsFromCloud();
-                await syncResponsesFromCloud();
+                await syncFromCloud();
                 renderPatient();
             } else {
                 alert('Неверный код');
@@ -1002,17 +962,15 @@
     // ----------  ЗАПУСК ----------
     (async () => {
         initLocalStorage();
-        await initSupabase();   // пробуем подключиться к Supabase, но даже если нет – работаем локально
+        await initSupabase();      // не блокирует рендеринг
         const savedRole = sessionStorage.getItem('therapyRole');
         if (savedRole === 'therapist') {
             currentRole = 'therapist';
-            await syncFormsFromCloud();
-            await syncResponsesFromCloud();
+            await syncFromCloud();
             renderTherapist();
         } else if (savedRole === 'patient') {
             currentRole = 'patient';
-            await syncFormsFromCloud();
-            await syncResponsesFromCloud();
+            await syncFromCloud();
             renderPatient();
         } else {
             renderLogin();
